@@ -1,0 +1,14 @@
+{
+  "name": "address-metadata",
+  "version": "1.0.0",
+  "description": "contracts for address metadata",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "argeric@qq.com",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^2.16.0"
+  }
+}
