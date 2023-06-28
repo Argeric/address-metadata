@@ -10,5 +10,9 @@
   "license": "ISC",
   "devDependencies": {
     "hardhat": "^2.16.0"
+  },
+  "dependencies": {
+    "@confluxfans/contracts": "^0.3.2",
+    "@openzeppelin/contracts": "^4.3.2"
   }
 }
