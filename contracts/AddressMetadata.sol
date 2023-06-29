@@ -21,8 +21,8 @@ InternalContractsHandler
         uint256 auditTimestamp;
     }
 
-    event SubmitNameTag(address indexed announcer, address indexed addr, string nameTag, string website);
-    event AuditNameTag(address indexed auditor, address indexed addr, string currentNameTag, string currentWebsite,
+    event NameTagSubmitted(address indexed announcer, address indexed addr, string nameTag, string website);
+    event NameTagChanged(address indexed auditor, address indexed addr, string currentNameTag, string currentWebsite,
         string expectNameTag, string expectWebsite);
 
     function submitNameTag(address addr, string memory nameTag, string memory website)
@@ -34,7 +34,7 @@ InternalContractsHandler
         nameTagEntry.expectNameTag = nameTag;
         nameTagEntry.expectWebsite = website;
         nameTagEntry.submitTimestamp = block.timestamp;
-        emit SubmitNameTag(_msgSender(), addr, nameTag, website);
+        emit NameTagSubmitted(_msgSender(), addr, nameTag, website);
     }
 
     function auditNameTag(address addr, string memory nameTag, string memory website)
@@ -53,6 +53,6 @@ InternalContractsHandler
         nameTagEntry.currentNameTag = nameTagEntry.expectNameTag;
         nameTagEntry.currentWebsite = nameTagEntry.expectWebsite;
         nameTagEntry.auditTimestamp = block.timestamp;
-        emit AuditNameTag(_msgSender(), addr, currentNameTag, currentWebsite, nameTag, website);
+        emit NameTagChanged(_msgSender(), addr, currentNameTag, currentWebsite, nameTag, website);
     }
 }
