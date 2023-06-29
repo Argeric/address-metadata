@@ -43,6 +43,7 @@ InternalContractsHandler
     event NameTagChanged(address indexed auditor, address indexed addr, string currentNameTag, string currentWebsite,
         string expectNameTag, string expectWebsite);
     event LabelAdded(address indexed auditor, address indexed addr, string label);
+    event LabelUpdated(address indexed auditor, address indexed addr, string oldLabel, string newLabel);
     event LabelDeleted(address indexed auditor, address indexed addr, string label);
 
     function updateNameTag(address addr, string memory name, string memory website)
@@ -64,6 +65,15 @@ InternalContractsHandler
     {
 
         emit LabelAdded(_msgSender(), addr, label);
+    }
+
+    function updateLabel(address addr, string memory oldLabel, string memory newLabel)
+    public
+    virtual
+    onlyAuditRole
+    {
+
+        emit LabelUpdated(_msgSender(), addr, oldLabel, newLabel);
     }
 
     function deleteLabel(address addr, string memory label)
