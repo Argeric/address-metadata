@@ -40,6 +40,9 @@ InternalContractsHandler
         _setupRole(Roles.AUDIT_ROLE, _msgSender(), adminName);
     }
 
+    // TODO add method listing roles
+    //
+
     function submitNameTag(address addr, string memory nameTag, string memory website)
     public
     virtual
