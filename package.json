@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@confluxfans/contracts": "^0.3.2",
-    "@openzeppelin/contracts": "^4.3.2"
+    "@openzeppelin/contracts": "^4.9.2"
   }
 }

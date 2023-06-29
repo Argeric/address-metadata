@@ -1,13 +1,14 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@confluxfans/contracts/InternalContracts/InternalContractsHandler.sol";
 
 import "./MetadataAudit.sol";
 import "./MetadataPausable.sol";
+import "./Roles.sol";
 
 contract AddressMetadata is
-MetadataAudit,
-MetadataPausable,
+MetadataRole,
+Initializable,
 InternalContractsHandler
 {
     mapping (address => NameTagEntry)  public nameTagMapping;
@@ -21,9 +22,23 @@ InternalContractsHandler
         uint256 auditTimestamp;
     }
 
+    modifier onlyAuditRole() {
+        require(hasRole(Roles.AUDIT_ROLE, _msgSender()), "AddressMetadata: AUDIT_ROLE required");
+        _;
+    }
+
     event NameTagSubmitted(address indexed announcer, address indexed addr, string nameTag, string website);
     event NameTagChanged(address indexed auditor, address indexed addr, string currentNameTag, string currentWebsite,
         string expectNameTag, string expectWebsite);
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(string adminName) public initializer {
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender(), adminName);
+        _setupRole(Roles.AUDIT_ROLE, _msgSender(), adminName);
+    }
 
     function submitNameTag(address addr, string memory nameTag, string memory website)
     public
