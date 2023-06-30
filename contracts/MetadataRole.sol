@@ -7,7 +7,6 @@ abstract contract MetadataRole is AccessControlEnumerable {
     mapping(address => string) private _roleMemberNames;
 
     struct RoleInfo {
-        string name;
         bytes32 hash;
         MemberInfo[] members;
     }
@@ -17,7 +16,7 @@ abstract contract MetadataRole is AccessControlEnumerable {
         string name;
     }
 
-    function grantRole(bytes32 role, address account, string memory name) public virtual override onlyRole(getRoleAdmin(role)) {
+    function grantRole(bytes32 role, address account, string memory name) public virtual onlyRole(getRoleAdmin(role)) {
         _grantRole(role, account, name);
     }
 
@@ -25,12 +24,12 @@ abstract contract MetadataRole is AccessControlEnumerable {
         _grantRole(role, account, name);
     }
 
-    function _grantRole(bytes32 role, address account, string memory name) internal virtual override {
+    function _grantRole(bytes32 role, address account, string memory name) internal virtual {
         super._grantRole(role, account);
         _roleMemberNames[account] = name;
     }
 
-    function _revokeRole(bytes32 role, address account) internal virtual {
+    function _revokeRole(bytes32 role, address account) internal override virtual {
         super._revokeRole(role, account);
         delete _roleMemberNames[account];
     }
@@ -40,7 +39,7 @@ abstract contract MetadataRole is AccessControlEnumerable {
         MemberInfo[] memory members = new MemberInfo[](count);
         for(uint i=0; i<count; i++) {
             address addr = getRoleMember(role, i);
-            address name = _roleMemberNames[addr];
+            string memory name = _roleMemberNames[addr];
             members[i] = MemberInfo(addr, name);
         }
         info = RoleInfo(role, members);
