@@ -37,12 +37,8 @@ InternalContractsHandler
         _;
     }
 
-    event NameTagAdded(address indexed auditor, address indexed addr, string nameTag, string website);
-    event NameTagChanged(address indexed auditor, address indexed addr, string nameTag, string website);
-    event NameTagDeleted(address indexed auditor, address indexed addr);
-    event LabelAdded(address indexed auditor, address indexed addr, string label);
-    event LabelUpdated(address indexed auditor, address indexed addr, string oldLabel, string newLabel);
-    event LabelDeleted(address indexed auditor, address indexed addr, string label);
+    event NameTagChanged(address indexed auditor, address indexed addr, string oldNameTag, string oldWebsite, string newNameTag, string newWebsite);
+    event LabelChanged(address indexed auditor, address indexed addr, string oldLabel, string newLabel);
 
     constructor() {
         _disableInitializers();
@@ -69,7 +65,7 @@ InternalContractsHandler
         nameTag.website = website;
         nameTag.auditTime = block.timestamp;
         nameTagUsers.set(addr, block.timestamp);
-        emit NameTagAdded(_msgSender(), addr, name, website);
+        emit NameTagChanged(_msgSender(), addr, "", "", name, website);
     }
 
     function updateNameTag(address addr, string memory name, string memory website)
@@ -81,11 +77,13 @@ InternalContractsHandler
         require(bytes(website).length != 0, "AddressMetadata: website is null, please provide it");
 
         NameTag storage nameTag = nameTagMapping[addr];
+        string memory oldName = nameTag.name;
+        string memory oldWebsite = nameTag.website;
         nameTag.name = name;
         nameTag.website = website;
         nameTag.auditTime = block.timestamp;
         nameTagUsers.set(addr, block.timestamp);
-        emit NameTagChanged(_msgSender(), addr, name, website);
+        emit NameTagChanged(_msgSender(), addr, oldName, oldWebsite, name, website);
     }
 
     function deleteNameTag(address addr)
@@ -93,9 +91,13 @@ InternalContractsHandler
     virtual
     onlyAuditRole
     {
+        NameTag storage nameTag = nameTagMapping[addr];
+        string memory oldName = nameTag.name;
+        string memory oldWebsite = nameTag.website;
+
         delete nameTagMapping[addr];
         nameTagUsers.remove(addr);
-        emit NameTagDeleted(_msgSender(), addr);
+        emit NameTagChanged(_msgSender(), addr, oldName, oldWebsite, "", "");
     }
 
     function listNameTags(uint256 offset, uint256 limit)
@@ -132,7 +134,7 @@ InternalContractsHandler
 
         labels.push(label);
         labelUsers.set(addr, block.timestamp);
-        emit LabelAdded(_msgSender(), addr, label);
+        emit LabelChanged(_msgSender(), addr, "", label);
     }
 
     function updateLabel(address addr, string memory oldLabel, string memory newLabel)
@@ -146,7 +148,7 @@ InternalContractsHandler
 
         labels[index] = newLabel;
         labelUsers.set(addr, block.timestamp);
-        emit LabelUpdated(_msgSender(), addr, oldLabel, newLabel);
+        emit LabelChanged(_msgSender(), addr, oldLabel, newLabel);
     }
 
     function deleteLabel(address addr, string memory label)
@@ -166,7 +168,7 @@ InternalContractsHandler
             labels.pop();
             labelUsers.set(addr, block.timestamp);
         }
-        emit LabelDeleted(_msgSender(), addr, label);
+        emit LabelChanged(_msgSender(), addr, label, "");
     }
 
     function findLabel(string[] memory labels, string memory label) internal view virtual returns(bool, uint){
