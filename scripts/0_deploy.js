@@ -8,9 +8,9 @@ async function main() {
 
     // const AddressMetadata = new hre.ethers.ContractFactory(AddressMetadataJSON.abi, AddressMetadataJSON.bytecode, deployer);
     const AddressMetadata = await hre.ethers.getContractFactory("AddressMetadata", deployer);
-    console.log(`0_deploy AddressMetadata`, AddressMetadata);
+    // console.log(`0_deploy AddressMetadata`, AddressMetadata);
     const addressMetadata = await AddressMetadata.deploy();
-    console.log(`1_deploy addressMetadata`, addressMetadata);
+    // console.log(`1_deploy addressMetadata`, addressMetadata);
     await addressMetadata.deployed();
     console.log(">> ✅ AddressMetadata deploy at:", addressMetadata.address);
 
