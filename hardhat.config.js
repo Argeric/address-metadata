@@ -1,3 +1,10 @@
+require("dotenv").config();
+
+require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-waffle");
+require("hardhat-gas-reporter");
+require("solidity-coverage");
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -13,44 +20,53 @@ module.exports = {
     },
   },
   networks: {
-    // conflux config start->
-    conflux: {
-      url: "https://evmtestnet.confluxrpc.com"
+    testnet_evm: {
+      url: "http://evmtestnet.confluxrpc.com",
+      chainId: 71,
+      gas: 10000000,
+      gasPrice: 30000000000, // 30G drip
+      loggingEnabled: true,
+      accounts: [process.env.TESTNET_EVM_PRIVATE_KEY_1]
     },
-    // conflux config end->
-
-    /*// goerli config start->
+    testnet_core: {
+      chainId: 1,
+      loggingEnabled: true,
+      url: "http://test-internal.confluxrpc.com",
+      accounts: [process.env.TESTNET_CORE_PRIVATE_KEY_1],
+    },
     goerli: {
+      chainId: 5,
+      loggingEnabled: true,
       url: 'https://rpc.ankr.com/eth_goerli'
     }
-    // goerli config end->*/
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
   },
   etherscan: {
-    // conflux config start->
     apiKey: {
-      conflux: "YOUR_CONFLUXSCAN_API_KEY"
+      testnet_evm: "YOUR_CONFLUXSCAN_API_KEY",
+      testnet_core: "YOUR_CONFLUXSCAN_API_KEY",
+      goerli: "W3HFCB87IWVV6PK7ITW8287FAU367ESMVA"
     },
     customChains: [
       {
-        network: "conflux",
+        network: "testnet_evm",
         chainId: 71,
         urls: {
           apiURL: "https://evmapi-testnet.confluxscan.net/api",
           browserURL: "https://evmtestnet.confluxscan.net"
         }
-      }
-    ],
-    // conflux config end->
-
-    /*// goerli config start->
-    apiKey: {
-      goerli: "W3HFCB87IWVV6PK7ITW8287FAU367ESMVA"
-    },
-    customChains: [
+      },
+      {
+        network: "testnet_core",
+        chainId: 1,
+        urls: {
+          apiURL: "https://api-testnet.confluxscan.net/api",
+          browserURL: "https://testnet.confluxscan.net"
+        }
+      },
       {
         network: "goerli",
         chainId: 5,
@@ -59,7 +75,6 @@ module.exports = {
           browserURL: "https://goerli.etherscan.io"
         }
       }
-    ]
-    // goerli config end->*/
+    ],
   },
 };
