@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const AddressMetadataJSON = require('../artifacts/contracts/AddressMetadata.sol/AddressMetadata.json')
+const AddressMetadataJSON = require('../../artifacts/contracts/AddressMetadata.sol/AddressMetadata.json')
 
 async function main() {
     const [deployer] = await hre.ethers.getSigners();
