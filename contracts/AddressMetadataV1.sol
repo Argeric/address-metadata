@@ -7,7 +7,7 @@ import "@confluxfans/contracts/InternalContracts/InternalContractsHandler.sol";
 
 import "./MetadataRole.sol";
 
-contract AddressMetadata is
+contract AddressMetadataV1 is
 MetadataRole,
 Initializable,
 InternalContractsHandler
@@ -19,6 +19,7 @@ InternalContractsHandler
         address addr;
         string name;
         string website;
+        string desc;
         uint256 auditTime;
     }
     struct Labels {
@@ -38,53 +39,56 @@ InternalContractsHandler
         _;
     }
 
-    event NameTagChanged(address indexed auditor, address indexed addr, string oldNameTag, string oldWebsite, string newNameTag, string newWebsite);
+    event NameTagChanged(address indexed auditor, address indexed addr, string oldNameTag, string oldWebsite,
+        string oldDesc, string newNameTag, string newWebsite, string newDesc);
     event LabelChanged(address indexed auditor, address indexed addr, string oldLabel, string newLabel);
-
-    constructor() {
-        _disableInitializers();
-    }
 
     function initialize() public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender(), "metadata-admin");
         _setupRole(AUDIT_ROLE, _msgSender(), "metadata-admin");
     }
 
-    function addNameTag(address addr, string memory name, string memory website)
+    function addNameTag(address addr, string memory name, string memory website, string memory desc)
     public
     virtual
     onlyAuditRole
     {
         require(bytes(name).length != 0, "AddressMetadata: nameTag is null, please provide it");
         require(bytes(website).length != 0, "AddressMetadata: website is null, please provide it");
+        require(bytes(desc).length != 0, "AddressMetadata: shortDesc is null, please provide it");
 
         NameTag storage nameTag = nameTagMapping[addr];
         require(bytes(nameTag.name).length == 0, "AddressMetadata: nameTag has been set already");
         require(bytes(nameTag.website).length == 0, "AddressMetadata: website has been set already");
+        require(bytes(nameTag.desc).length == 0, "AddressMetadata: shortDesc has been set already");
 
         nameTag.name = name;
         nameTag.website = website;
+        nameTag.desc = desc;
         nameTag.auditTime = block.timestamp;
         nameTagUsers.set(addr, block.timestamp);
-        emit NameTagChanged(_msgSender(), addr, "", "", name, website);
+        emit NameTagChanged(_msgSender(), addr, "", "", "", name, website, desc);
     }
 
-    function updateNameTag(address addr, string memory name, string memory website)
+    function updateNameTag(address addr, string memory name, string memory website, string memory desc)
     public
     virtual
     onlyAuditRole
     {
         require(bytes(name).length != 0, "AddressMetadata: nameTag is null, please provide it");
         require(bytes(website).length != 0, "AddressMetadata: website is null, please provide it");
+        require(bytes(desc).length != 0, "AddressMetadata: shortDesc is null, please provide it");
 
         NameTag storage nameTag = nameTagMapping[addr];
         string memory oldName = nameTag.name;
         string memory oldWebsite = nameTag.website;
+        string memory oldDesc = nameTag.desc;
         nameTag.name = name;
         nameTag.website = website;
+        nameTag.desc = desc;
         nameTag.auditTime = block.timestamp;
         nameTagUsers.set(addr, block.timestamp);
-        emit NameTagChanged(_msgSender(), addr, oldName, oldWebsite, name, website);
+        emit NameTagChanged(_msgSender(), addr, oldName, oldWebsite, oldDesc, name, website, desc);
     }
 
     function deleteNameTag(address addr)
@@ -95,10 +99,11 @@ InternalContractsHandler
         NameTag storage nameTag = nameTagMapping[addr];
         string memory oldName = nameTag.name;
         string memory oldWebsite = nameTag.website;
+        string memory oldDesc = nameTag.desc;
 
         delete nameTagMapping[addr];
         nameTagUsers.remove(addr);
-        emit NameTagChanged(_msgSender(), addr, oldName, oldWebsite, "", "");
+        emit NameTagChanged(_msgSender(), addr, oldName, oldWebsite, oldDesc, "", "", "");
     }
 
     function listNameTags(uint256 offset, uint256 limit)
@@ -118,7 +123,7 @@ InternalContractsHandler
         for (uint256 i = offset; i < end; i++) {
             (address addr,) = nameTagUsers.at(i);
             NameTag memory nameTag = nameTagMapping[addr];
-            result[i - offset] = NameTag(addr, nameTag.name, nameTag.website, nameTag.auditTime);
+            result[i - offset] = NameTag(addr, nameTag.name, nameTag.website, nameTag.desc, nameTag.auditTime);
         }
 
         return (total, result);
